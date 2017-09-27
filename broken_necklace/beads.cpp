@@ -12,46 +12,71 @@ LANG: C++
 #include <vector>
 using namespace std;
 
-vector<int> addArray(string necklace){
-    vector<int> letter_counts;
-    char current = necklace[0];
-    bool color_set = false;
-    char color;
+int getLeft(string necklace, int breakpoint){
+    int bead = breakpoint;
+    char current = necklace[bead];
     int count = 0;
-    for(int i = 0; i < necklace.length(); i++){
-        if(current == necklace[i] || necklace[i] == 'w'){
+    //string beads = "";
+    while(bead >= 0){
+        if(necklace[bead] == current || necklace[bead] == 'w'){
             count++;
         }
-        else if(current == 'w' && color_set == false){
-            current = necklace[i];
-            color_set = true;
+        else if(current == 'w' && necklace[bead] != 'w'){
             count++;
+            current = necklace[bead];
         }
         else{
-            letter_counts.push_back(count);
-            count = 1;
-            current = necklace[i];
-            color_set = false;
+            break;
         }
+        //beads.insert(0,1,necklace[bead]);
+        bead--;
     }
-    letter_counts.push_back(count);
-    for(int i = 0; i < letter_counts.size(); i++){
-        cout << letter_counts[i] << " ";
+    //cout << "Left: " << beads;
+    return count;
+}
+int getRight(string necklace, int breakpoint){
+    int bead = breakpoint;
+    bead += 1;
+    char current = necklace[bead];
+    int count = 0;
+    //string beads = "";
+    while(bead < necklace.length()){
+        if(necklace[bead] == current || necklace[bead] == 'w'){
+            count++;
+        }
+        else if(current == 'w' && necklace[bead] != 'w'){
+            count++;
+            current = necklace[bead];
+        }
+        else{
+            break;
+        }
+        //beads+= necklace[bead];
+        bead++;
     }
-    return letter_counts;
+    //cout << " Right: " << beads << endl;
+    return count;
 }
 
-int maxBeads(string necklace, int num_of_beads){
-    vector<int> letter_counts = addArray(necklace);
-    int max = letter_counts[0] + letter_counts[letter_counts.size() - 1];
-    for(int i = 0; i < letter_counts.size(); i++){
-        int adjacent_count = letter_counts[i] + letter_counts[i + 1];
-        if(adjacent_count > max){
-            max = adjacent_count;
+int getBreakPoint(string necklace){
+    int max = 0;
+    necklace += necklace;
+    //cout << necklace << endl;
+    for(int i = 0; i < necklace.length() - 1; i++){
+        int left = getLeft(necklace, i);
+        int right = getRight(necklace, i);
+        if((left + right) > max && (left + right) <= necklace.length()/2){
+            max = left + right;
         }
+        if(max == 0){
+            return necklace.length()/2;
+        }
+        //cout << "Left: " << left << " Right: " << right << endl; 
     }
     return max;
 }
+
+
 
 int main(){
     ofstream fout("beads.out");
@@ -59,8 +84,7 @@ int main(){
     int num_of_beads;
     string necklace;
     fin >> num_of_beads >> necklace;
-    
-    fout << maxBeads(necklace, num_of_beads);
+    fout << getBreakPoint(necklace) << endl;
     
     return 0;
 }
